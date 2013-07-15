@@ -3,7 +3,30 @@ ContactManager.module('ContactsApp.List', function(List, ContactManager,
   Backbone, Marionette, $, _) {
   List.Contact = Backbone.Marionette.ItemView.extend({
     tagName: "tr",
-    template: "#contact-list-item"
+    template: "#contact-list-item",
+    events: {
+      "click": "highlightName",
+      "click td a.js-show": "showClicked",
+      "click button.js-delete": "deleteClicked"
+    },
+    highlightName: function(e) {
+      e.preventDefault();
+      this.$el.toggleClass('warning');
+    },
+    deleteClicked: function(e) {
+      e.stopPropagation();
+      this.trigger("contact:delete", this.model);
+    },
+    remove: function() {
+      this.$el.fadeOut(function() {
+        $(this).remove();
+      });
+    },
+    showClicked: function(e) {
+      e.preventDefault();
+      e.stopPropagation();
+      this.trigger("contact:show", this.model);
+    }
   });
 
   List.Contacts = Backbone.Marionette.CompositeView.extend({
@@ -11,7 +34,12 @@ ContactManager.module('ContactsApp.List', function(List, ContactManager,
     className: "table table-hover",
     template: "#contact-list",
     itemView: List.Contact,
-    itemViewContainer: "tbody"
+    itemViewContainer: "tbody",
+    onItemviewContactDelete: function() {
+      this.$el.fadeOut(1000, function() {
+        $(this).fadeIn(1000);
+      });
+    }
   });
 
 });
